@@ -7,3 +7,5 @@
 /obj
 /ShoppingCartService/bin/Debug
 /ShoppingCartService/obj
+/ShoppingCartService.Tests/obj
+/ShoppingCartService.Tests/bin/Debug/net5.0
