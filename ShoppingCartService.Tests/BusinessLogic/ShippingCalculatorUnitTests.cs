@@ -8,10 +8,13 @@ namespace ShoppingCartServiceTests.BusinessLogic
 {
     public class ShippingCalculatorUnitTests
     {
-        [Fact]
-        public void CalculateShippingCost_SameCityStandardShippingNoItems_Return0()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(5)]
+        public void CalculateShippingCost_SameCityStandardShippingItems_ReturnNumberOfItems(uint numberOfItems)
         {
-            var address = new Address {City = "city", Country = "country", Street = "street 1"};
+            var address = new Address { City = "city", Country = "country", Street = "street 1" };
 
             var target = new ShippingCalculator(address);
 
@@ -19,65 +22,19 @@ namespace ShoppingCartServiceTests.BusinessLogic
             {
                 CustomerType = CustomerType.Standard,
                 ShippingMethod = ShippingMethod.Standard,
-                Items = new List<Item>(),
-                ShippingAddress = new Address {City = "city", Country = "country", Street = "street 2"}
+                Items = new List<Item>() { new Item { Quantity = numberOfItems } },
+                ShippingAddress = new Address { City = "city", Country = "country", Street = "street 2" }
             };
 
             var result = target.CalculateShippingCost(cart);
 
-            Assert.Equal(0, result);
-        }
-
-        [Fact]
-        public void CalculateShippingCost_SameCityStandardShippingOneItemsQuantity1_Return1()
-        {
-            var address = new Address {City = "city", Country = "country", Street = "street 1"};
-
-            var target = new ShippingCalculator(address);
-
-            var cart = new Cart
-            {
-                CustomerType = CustomerType.Standard,
-                ShippingMethod = ShippingMethod.Standard,
-                Items = new List<Item>
-                {
-                    new() {Quantity = 1}
-                },
-                ShippingAddress = new Address {City = "city", Country = "country", Street = "street 2"}
-            };
-
-            var result = target.CalculateShippingCost(cart);
-
-            Assert.Equal(1 * ShippingCalculator.SameCityRate, result);
-        }
-
-        [Fact]
-        public void CalculateShippingCost_SameCityStandardShippingOneItemsQuantity5_return5TimesRate()
-        {
-            var address = new Address {Country = "country", City = "city", Street = "street 1"};
-
-            var target = new ShippingCalculator(address);
-
-            var cart = new Cart
-            {
-                CustomerType = CustomerType.Standard,
-                ShippingMethod = ShippingMethod.Standard,
-                Items = new List<Item>
-                {
-                    new() {Quantity = 5}
-                },
-                ShippingAddress = new Address {Country = "country", City = "city", Street = "street 2"}
-            };
-
-            var result = target.CalculateShippingCost(cart);
-
-            Assert.Equal(5 * ShippingCalculator.SameCityRate, result);
+            Assert.Equal(numberOfItems, result);
         }
 
         [Fact]
         public void CalculateShippingCost_SameCityStandardShippingTwoItems_ReturnSumOfItemsQuantity()
         {
-            var address = new Address {Country = "country", City = "city", Street = "street 1"};
+            var address = new Address { Country = "country", City = "city", Street = "street 1" };
 
             var target = new ShippingCalculator(address);
 
@@ -90,7 +47,7 @@ namespace ShoppingCartServiceTests.BusinessLogic
                     new() {Quantity = 5},
                     new() {Quantity = 3}
                 },
-                ShippingAddress = new Address {Country = "country", City = "city", Street = "street 2"}
+                ShippingAddress = new Address { Country = "country", City = "city", Street = "street 2" }
             };
 
             var result = target.CalculateShippingCost(cart);
@@ -118,8 +75,10 @@ namespace ShoppingCartServiceTests.BusinessLogic
             Assert.Equal(0, result);
         }
 
-        [Fact]
-        public void CalculateShippingCost_SameCountryStandardShippingOneItemsQuantity1_Return1TimesRate()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(5)]
+        public void CalculateShippingCost_SameCountryStandardShippingItemsQuantity_ReturnItemsQuantityTimesRate(uint itemsQuantity)
         {
             var address = new Address { Country = "country", City = "city 1", Street = "street 1" };
 
@@ -131,37 +90,14 @@ namespace ShoppingCartServiceTests.BusinessLogic
                 ShippingMethod = ShippingMethod.Standard,
                 Items = new List<Item>
                 {
-                    new() {Quantity = 1}
+                    new() {Quantity = itemsQuantity}
                 },
                 ShippingAddress = new Address { Country = "country", City = "city 2", Street = "street 2" }
             };
 
             var result = target.CalculateShippingCost(cart);
 
-            Assert.Equal(1 * ShippingCalculator.SameCountryRate, result);
-        }
-
-        [Fact]
-        public void CalculateShippingCost_SameCountryStandardShippingOneItemsQuantity5_Return5TimesRate()
-        {
-            var address = new Address { Country = "country", City = "city 1", Street = "street 1" };
-
-            var target = new ShippingCalculator(address);
-
-            var cart = new Cart
-            {
-                CustomerType = CustomerType.Standard,
-                ShippingMethod = ShippingMethod.Standard,
-                Items = new List<Item>
-                {
-                    new() {Quantity = 5}
-                },
-                ShippingAddress = new Address { Country = "country", City = "city 2", Street = "street 2" }
-            };
-
-            var result = target.CalculateShippingCost(cart);
-
-            Assert.Equal(5 * ShippingCalculator.SameCountryRate, result);
+            Assert.Equal(itemsQuantity * ShippingCalculator.SameCountryRate, result);
         }
 
         [Fact]
@@ -208,8 +144,10 @@ namespace ShoppingCartServiceTests.BusinessLogic
             Assert.Equal(0, result);
         }
 
-        [Fact]
-        public void CalculateShippingCost_InternationalShippingStandardShippingOneItemsQuantity1_return1TimesRate()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(5)]
+        public void CalculateShippingCost_InternationalShippingStandardShippingItemsQuantity_returnItemsQuantityTimesRate(uint itemsQuantity)
         {
             var address = new Address { Country = "country 1", City = "city 1", Street = "street 1" };
 
@@ -221,37 +159,14 @@ namespace ShoppingCartServiceTests.BusinessLogic
                 ShippingMethod = ShippingMethod.Standard,
                 Items = new List<Item>
                 {
-                    new() {Quantity = 1}
+                    new() {Quantity = itemsQuantity}
                 },
                 ShippingAddress = new Address { Country = "country 2", City = "city 2", Street = "street 2" }
             };
 
             var result = target.CalculateShippingCost(cart);
 
-            Assert.Equal(1 * ShippingCalculator.InternationalShippingRate, result);
-        }
-
-        [Fact]
-        public void CalculateShippingCost_InternationalShippingStandardShippingOneItemsQuantity5_Return5timesRate()
-        {
-            var address = new Address { Country = "country 1", City = "city 1", Street = "street 1" };
-
-            var target = new ShippingCalculator(address);
-
-            var cart = new Cart
-            {
-                CustomerType = CustomerType.Standard,
-                ShippingMethod = ShippingMethod.Standard,
-                Items = new List<Item>
-                {
-                    new() {Quantity = 5}
-                },
-                ShippingAddress = new Address { Country = "country 2", City = "city 2", Street = "street 2" }
-            };
-
-            var result = target.CalculateShippingCost(cart);
-
-            Assert.Equal(5 * ShippingCalculator.InternationalShippingRate, result);
+            Assert.Equal(itemsQuantity * ShippingCalculator.InternationalShippingRate, result);
         }
 
         [Fact]
